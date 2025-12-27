@@ -1,0 +1,8 @@
+{
+  "name": "Kezya Rodrigues - Fonoaudiologia",
+  "description": "Professional landing page and management dashboard for Kezya Rodrigues, Speech Therapist. Specialized in language, voice, and orofacial myofunctional therapy.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
