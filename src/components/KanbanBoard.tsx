@@ -51,14 +51,37 @@ const KanbanBoard: React.FC<KanbanProps> = ({ tasks, setTasks }) => {
     );
   };
 
-  const addTask = (status: KanbanTask['status']) => {
-    const title = prompt('Título da tarefa:');
-    if (title) {
-      setTasks((prev) => [
-        ...prev,
-        { id: Date.now().toString(), title, status },
-      ]);
+  /* New state for inline adding */
+  const [addingToColumn, setAddingToColumn] = React.useState<string | null>(
+    null,
+  );
+  const [newTaskTitle, setNewTaskTitle] = React.useState('');
+
+  const startAdding = (status: KanbanTask['status']) => {
+    setAddingToColumn(status);
+    setNewTaskTitle('');
+  };
+
+  const confirmAdd = () => {
+    if (!addingToColumn || !newTaskTitle.trim()) {
+      setAddingToColumn(null);
+      return;
     }
+    setTasks((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        title: newTaskTitle,
+        status: addingToColumn as KanbanTask['status'],
+      },
+    ]);
+    setAddingToColumn(null);
+    setNewTaskTitle('');
+  };
+
+  const cancelAdd = () => {
+    setAddingToColumn(null);
+    setNewTaskTitle('');
   };
 
   const removeTask = (id: string) => {
@@ -112,7 +135,7 @@ const KanbanBoard: React.FC<KanbanProps> = ({ tasks, setTasks }) => {
       <div className="flex justify-between items-center shrink-0">
         <div>
           <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
-            Fluxo de Trabalho
+            TAREFAS
           </h2>
           <p className="text-sm text-slate-500 font-medium">
             Organize processos e tarefas clínicas da Dra. Soraia.
@@ -137,7 +160,7 @@ const KanbanBoard: React.FC<KanbanProps> = ({ tasks, setTasks }) => {
                 </span>
               </div>
               <button
-                onClick={() => addTask(col.id)}
+                onClick={() => startAdding(col.id)}
                 className="p-1.5 hover:bg-white rounded-xl text-slate-500 hover:text-teal-600 transition-all shadow-sm border border-transparent hover:border-slate-200"
                 title="Adicionar tarefa nesta coluna"
               >
@@ -146,6 +169,44 @@ const KanbanBoard: React.FC<KanbanProps> = ({ tasks, setTasks }) => {
             </div>
 
             <div className="flex-1 p-4 space-y-4 overflow-y-auto custom-scrollbar">
+              {addingToColumn === col.id && (
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-teal-200 animate-scale-up">
+                  <input
+                    autoFocus
+                    type="text"
+                    placeholder="Nome da tarefa..."
+                    className="w-full text-sm font-bold text-slate-800 placeholder-slate-400 outline-none bg-transparent"
+                    value={newTaskTitle}
+                    onChange={(e) => setNewTaskTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') confirmAdd();
+                      if (e.key === 'Escape') cancelAdd();
+                    }}
+                    onBlur={() => {
+                      // Optional: Auto-save on blur or cancel.
+                      // Usually good to keep it simple, strictly save on Enter so user doesn't lose focus accidentally.
+                      // For now, let's just let it stay open or user can click out.
+                      // If we want "click away to save", we confirmAdd();
+                      // But let's leave it manual for better control unless requested.
+                      // Actually, the request says "Ao clicar em adicionar, habilitar card".
+                    }}
+                  />
+                  <div className="flex justify-end gap-2 mt-2">
+                    <button
+                      onClick={cancelAdd}
+                      className="text-xs text-slate-400 hover:text-slate-600 px-2 py-1"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={confirmAdd}
+                      className="bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-lg hover:bg-teal-700"
+                    >
+                      Adicionar
+                    </button>
+                  </div>
+                </div>
+              )}
               {tasks
                 .filter((t) => t.status === col.id)
                 .map((task) => (

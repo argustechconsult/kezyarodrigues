@@ -251,7 +251,7 @@ const FinancialManagement: React.FC<FinanceProps> = ({
                   <input
                     type="number"
                     required
-                    value={newRec.amount}
+                    value={newRec.amount || ''}
                     onChange={(e) =>
                       setNewRec({ ...newRec, amount: Number(e.target.value) })
                     }

@@ -8,6 +8,13 @@ export interface Client {
   status: 'active' | 'inactive' | 'pending';
   lastSessionDate?: string;
   treatmentStage: 'First Contact' | 'Evaluation' | 'In Treatment' | 'Discharged';
+  cep?: string;
+  street?: string;
+  number?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  complement?: string;
 }
 
 export interface Appointment {

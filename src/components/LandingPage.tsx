@@ -4,19 +4,13 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Calendar,
-  User,
-  BookOpen,
-  MapPin,
+  Calendar, 
   Phone,
   Mail,
-  Instagram,
   CheckCircle,
   Clock,
   Video,
-  Check,
   Sparkles,
-  RefreshCw,
   Send,
   Menu,
   X as CloseIcon,
@@ -24,6 +18,7 @@ import {
   Ear,
   MessageSquare,
   Baby,
+  Instagram,
 } from 'lucide-react';
 import { Appointment, GlobalSettings } from '../types/types';
 import { generateConfirmationMessage } from '../services/geminiService';
@@ -169,6 +164,22 @@ const LandingPage: React.FC<LandingPageProps> = ({
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setFinalAppointment(app);
       setBookingStep(3);
+
+      // Open WhatsApp with confirmation message
+      const encodedMessage = encodeURIComponent(message);
+      // Assuming Brazilian format for phone numbers, we need to clean it.
+      // If clientInfo.phone is not clean, we should clean it.
+      // Ideally, the phone should be formatted or we use a standard link.
+      // Since we don't know if the phone has DDI, let's assume raw valid number or just open whatsapp for user to choose contact if strictly needed,
+      // but request says "enviar lnk para o email e whatsapp do cleinte".
+      // Opening the link is the "active" way to prompt sending.
+      const phoneClean = clientInfo.phone.replace(/\D/g, '');
+      if (phoneClean) {
+        window.open(
+          `https://wa.me/55${phoneClean}?text=${encodedMessage}`,
+          '_blank',
+        );
+      }
     } catch (error) {
       console.error('Erro ao processar agendamento:', error);
     } finally {

@@ -34,7 +34,34 @@ const ClientManagement: React.FC<ClientManagementProps> = ({
     email: '',
     status: 'active',
     treatmentStage: 'First Contact',
+    cep: '',
+    street: '',
+    number: '',
+    neighborhood: '',
+    city: '',
+    state: '',
+    complement: '',
   });
+
+  React.useEffect(() => {
+    const cep = formData.cep?.replace(/\D/g, '') || '';
+    if (cep.length === 8) {
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.erro) {
+            setFormData((prev) => ({
+              ...prev,
+              street: data.logradouro,
+              neighborhood: data.bairro,
+              city: data.localidade,
+              state: data.uf,
+            }));
+          }
+        })
+        .catch((err) => console.error('Error fetching CEP:', err));
+    }
+  }, [formData.cep]);
 
   const filteredClients = clients.filter(
     (c) =>
@@ -87,11 +114,21 @@ const ClientManagement: React.FC<ClientManagementProps> = ({
       const client: Client = {
         id: Date.now().toString(),
         name: formData.name!,
-        address: formData.address || '',
+        address: `${formData.street || ''}, ${formData.number || ''} - ${
+          formData.neighborhood || ''
+        }, ${formData.city || ''} - ${formData.state || ''}`, // Construct address string
         phone: formData.phone || '',
         email: formData.email || '',
         status: 'active',
         treatmentStage: 'First Contact',
+        // Save individual fields too if needed, spreading formData works
+        cep: formData.cep,
+        street: formData.street,
+        number: formData.number,
+        neighborhood: formData.neighborhood,
+        city: formData.city,
+        state: formData.state,
+        complement: formData.complement,
       };
       setClients((prev) => [...prev, client]);
     }
@@ -104,6 +141,13 @@ const ClientManagement: React.FC<ClientManagementProps> = ({
       email: '',
       status: 'active',
       treatmentStage: 'First Contact',
+      cep: '',
+      street: '',
+      number: '',
+      neighborhood: '',
+      city: '',
+      state: '',
+      complement: '',
     });
   };
 
@@ -312,19 +356,128 @@ const ClientManagement: React.FC<ClientManagementProps> = ({
                     placeholder="(21) 99999-9999"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700">
-                    Endereço
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) =>
-                      setFormData({ ...formData, address: e.target.value })
-                    }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-teal-500 outline-none"
-                    placeholder="Rua, Número, Bairro"
-                  />
+                <div className="md:col-span-2 space-y-4 pt-2 border-t border-slate-100">
+                  <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+                    Endereço de Entrega/Cobrança
+                  </p>
+                  <div className="grid grid-cols-12 gap-4">
+                    {/* CEP */}
+                    <div className="col-span-4 md:col-span-3 space-y-2">
+                      <label className="text-sm font-bold text-slate-700">
+                        CEP
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={9}
+                        value={formData.cep}
+                        onChange={(e) =>
+                          setFormData({ ...formData, cep: e.target.value })
+                        }
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-teal-500 outline-none"
+                        placeholder="00000-000"
+                      />
+                    </div>
+
+                    {/* Cidade */}
+                    <div className="col-span-8 md:col-span-7 space-y-2">
+                      <label className="text-sm font-bold text-slate-700">
+                        Cidade
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.city}
+                        onChange={(e) =>
+                          setFormData({ ...formData, city: e.target.value })
+                        }
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-teal-500 outline-none"
+                        placeholder="Cidade"
+                      />
+                    </div>
+
+                    {/* UF */}
+                    <div className="col-span-4 md:col-span-2 space-y-2">
+                      <label className="text-sm font-bold text-slate-700">
+                        UF
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={2}
+                        value={formData.state}
+                        onChange={(e) =>
+                          setFormData({ ...formData, state: e.target.value })
+                        }
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-teal-500 outline-none"
+                        placeholder="UF"
+                      />
+                    </div>
+
+                    {/* Rua */}
+                    <div className="col-span-12 md:col-span-10 space-y-2">
+                      <label className="text-sm font-bold text-slate-700">
+                        Rua / Logradouro
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.street}
+                        onChange={(e) =>
+                          setFormData({ ...formData, street: e.target.value })
+                        }
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-teal-500 outline-none"
+                        placeholder="Nome da Rua"
+                      />
+                    </div>
+                    {/* Numero */}
+                    <div className="col-span-12 md:col-span-2 space-y-2">
+                      <label className="text-sm font-bold text-slate-700">
+                        Número
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.number}
+                        onChange={(e) =>
+                          setFormData({ ...formData, number: e.target.value })
+                        }
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-teal-500 outline-none"
+                        placeholder="Nº"
+                      />
+                    </div>
+                    {/* Bairro */}
+                    <div className="col-span-12 md:col-span-6 space-y-2">
+                      <label className="text-sm font-bold text-slate-700">
+                        Bairro
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.neighborhood}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            neighborhood: e.target.value,
+                          })
+                        }
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-teal-500 outline-none"
+                        placeholder="Bairro"
+                      />
+                    </div>
+                    {/* Complemento */}
+                    <div className="col-span-12 md:col-span-6 space-y-2">
+                      <label className="text-sm font-bold text-slate-700">
+                        Complemento
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.complement}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            complement: e.target.value,
+                          })
+                        }
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:ring-2 focus:ring-teal-500 outline-none"
+                        placeholder="Apto, Bloco, etc."
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700">

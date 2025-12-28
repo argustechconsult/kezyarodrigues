@@ -1,4 +1,5 @@
 'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -95,7 +96,7 @@ export default function AdminLayout({
             <FileText size={22} /> Prontuários
           </Link>
           <Link href="/admin/kanban" className={getLinkClass('/admin/kanban')}>
-            <Columns size={22} /> Fluxo
+            <Columns size={22} /> Tarefas
           </Link>
           <Link
             href="/admin/finance"

@@ -214,16 +214,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     setAppointments((prev) => [...prev, newAppointment]);
 
-    const newFinancialRecord: FinancialRecord = {
-      id: `f-${Date.now()}`,
-      description: `Agendamento Online - ${clientData.name}`,
-      amount: price,
-      type: 'income',
-      date: appointmentData.date,
-      category: 'Atendimento',
-    };
-    setFinances((prev) => [...prev, newFinancialRecord]);
-
     return newAppointment;
   };
 
